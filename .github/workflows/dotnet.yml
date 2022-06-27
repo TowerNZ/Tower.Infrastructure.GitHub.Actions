@@ -3,16 +3,17 @@ name: Build and push dotnet API to container registry
 on:
   workflow_call:
     inputs:
-      dotnet-version:
+      DOTNET-VERSION:
         required: true
         type: string        
-      container-name:
+      CONTAINER-NAME:
         required: true
         type: string
-#    secrets:
-#      token:
-#        required: true
-
+    secrets:
+      REGISTRY_USERNAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
 jobs:
 
   build:
@@ -31,7 +32,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: ${{ inputs.dotnet-version }}
+        dotnet-version: ${{ inputs.DOTNET-VERSION }}
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
@@ -50,5 +51,5 @@ jobs:
         
     - name: 'Build and push'
       run: |
-       docker build -f Dockerfile.k8s . -t ${{ env.CONTAINER_REGISTRY }}/${{ inputs.container-name }}:${{ github.sha }}
-       docker push ${{ env.CONTAINER_REGISTRY }}/${{ inputs.container-name }}:${{ github.sha }}
+       docker build -f Dockerfile.k8s . -t ${{ env.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       docker push ${{ env.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
