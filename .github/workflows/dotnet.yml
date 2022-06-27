@@ -9,6 +9,9 @@ on:
       CONTAINER-NAME:
         required: true
         type: string
+      CONTAINER_REGISTRY:
+        required: true
+        type: string
     secrets:
       REGISTRY_USERNAME:
         required: true
@@ -22,9 +25,6 @@ jobs:
     defaults:
       run:
         working-directory: ./Source
-        
-    env:
-      CONTAINER_REGISTRY: twrcicdregister.azurecr.io
       
     steps:
     - uses: actions/checkout@v3
@@ -45,11 +45,11 @@ jobs:
     - name: 'Login to container registry'
       uses: azure/docker-login@v1
       with:
-        login-server: ${{ env.CONTAINER_REGISTRY }}
+        login-server: ${{ inputs.CONTAINER_REGISTRY }}
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
         
     - name: 'Build and push'
       run: |
-       docker build -f Dockerfile.k8s . -t ${{ env.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
-       docker push ${{ env.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       docker push ${{ inputs.CONTAINER_REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
