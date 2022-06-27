@@ -1,0 +1,54 @@
+name: Build and push dotnet API to container registry
+
+on:
+  workflow_call:
+    inputs:
+      dotnet-version:
+        required: true
+        type: string        
+      container-name:
+        required: true
+        type: string
+#    secrets:
+#      token:
+#        required: true
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Source
+        
+    env:
+      CONTAINER_REGISTRY: twrcicdregister.azurecr.io
+      
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ inputs.dotnet-version }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish -c Release -o out
+      
+    - name: 'Login to container registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ env.CONTAINER_REGISTRY }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        
+    - name: 'Build and push'
+      run: |
+       docker build -f Dockerfile.k8s . -t ${{ env.CONTAINER_REGISTRY }}/${{ inputs.container-name }}:${{ github.sha }}
+       docker push ${{ env.CONTAINER_REGISTRY }}/${{ inputs.container-name }}:${{ github.sha }}
