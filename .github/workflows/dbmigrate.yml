@@ -1,0 +1,58 @@
+name: Build and push dbmigrate image to container registry
+
+on:
+  workflow_call:
+    inputs:
+      DOTNET-VERSION:
+        required: true
+        type: string        
+      CONTAINER-NAME:
+        required: true
+        type: string
+      CONTAINER-REGISTRY:
+        required: true
+        type: string      
+      DBMIGRATE-FOLDER:
+        required: true
+        type: string
+    secrets:
+      REGISTRY_USERNAME:
+        required: true
+      REGISTRY_PASSWORD:
+        required: true
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./Source/${{ inputs.DBMIGRATE-FOLDER }}
+      
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: ${{ inputs.DOTNET-VERSION }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --no-restore
+#    - name: Test
+#      run: dotnet test --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish -c Release -p:PublishDir=out
+      
+    - name: 'Login to container registry'
+      uses: azure/docker-login@v1
+      with:
+        login-server: ${{ inputs.CONTAINER-REGISTRY }}
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+        
+    - name: 'Build and push'
+      run: |
+       docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
