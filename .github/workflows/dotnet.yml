@@ -12,6 +12,9 @@ on:
       CONTAINER-REGISTRY:
         required: true
         type: string
+      APPLICATION-FOLDER:
+        required: true
+        type: string
     secrets:
       REGISTRY_USERNAME:
         required: true
@@ -40,7 +43,7 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish -c Release -o out
+      run: dotnet publish -c Release -p:PublishDir=out
       
     - name: 'Login to container registry'
       uses: azure/docker-login@v1
@@ -51,5 +54,6 @@ jobs:
         
     - name: 'Build and push'
       run: |
+       working-directory: ./temp/${{ inputs.APPLICATION-FOLDER }}
        docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
        docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
