@@ -65,6 +65,6 @@ jobs:
       id: tag
       run: |
        cd ./${{ inputs.APPLICATION-FOLDER }}
-       run: echo "::set-output name=tag::$INPUTS_CONTAINER-REGISTRY/$INPUTS_CONTAINER-NAME:$GITHUB_SHA"
+       echo "::set-output name=tag::$INPUTS_CONTAINER-REGISTRY/$INPUTS_CONTAINER-NAME:$GITHUB_SHA"
        docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
        docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
