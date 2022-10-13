@@ -16,9 +16,9 @@ on:
         required: true
         type: string
     outputs:
-      tag:
-        description: "Full build tag for built container image"
-        value: ${{ jobs.build.outputs.tag }}
+      IMAGE-NAME:
+        description: "Name of the built container image"
+        value: ${{ jobs.build.outputs.imageName }}
     secrets:
       REGISTRY_USERNAME:
         required: true
@@ -34,7 +34,7 @@ jobs:
         working-directory: ./Source
         
     outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+      imageName: ${{ steps.build-and-push-image.outputs.imageName }}
       
     steps:
     - uses: actions/checkout@v3
@@ -59,15 +59,12 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
         
-      # docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
-      # docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
-      
-      
-    - name: 'Build and push'
-      id: tag
+    - name: 'Build and push image'
+      id: build-and-push-image
       run: |
        cd ./${{ inputs.APPLICATION-FOLDER }}
-       export TAG=${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
-       docker build -f Dockerfile.k8s . -t $TAG
-       docker push $TAG
-       echo "::set-output name=tag::${{ github.sha }}"
+       export imageName = ${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       export tag=${{ inputs.CONTAINER-REGISTRY }}/${{ imageName }}
+       docker build -f Dockerfile.k8s . -t $tag
+       docker push $tag
+       echo "::set-output name=imageName::${{ imageName }}"
