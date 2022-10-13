@@ -67,4 +67,4 @@ jobs:
        export tag=${{ inputs.CONTAINER-REGISTRY }}/${{ imageName }}
        docker build -f Dockerfile.k8s . -t $tag
        docker push $tag
-       echo "::set-output name=imageName::${{ imageName }}"
+       echo "::set-output name=imageName::$imageName"
