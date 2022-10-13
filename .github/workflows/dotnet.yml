@@ -66,7 +66,7 @@ jobs:
       id: tag
       run: |
        cd ./${{ inputs.APPLICATION-FOLDER }}
-       export TAG=$INPUTS_CONTAINER-REGISTRY/$INPUTS_CONTAINER-NAME:$GITHUB_SHA
+       export TAG=${{ inputs.CONTAINER-REGISTRY }}/$INPUTS_CONTAINER-NAME:$GITHUB_SHA
        env
        docker build -f Dockerfile.k8s . -t $TAG
        docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
