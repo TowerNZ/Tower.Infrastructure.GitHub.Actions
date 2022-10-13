@@ -70,4 +70,4 @@ jobs:
        export TAG=${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
        docker build -f Dockerfile.k8s . -t $TAG
        docker push $TAG
-       echo "::set-output name=tag::$TAG"
+       echo "::set-output name=tag::${{ github.sha }}"
