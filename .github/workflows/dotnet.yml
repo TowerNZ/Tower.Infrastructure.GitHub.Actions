@@ -28,6 +28,9 @@ jobs:
     defaults:
       run:
         working-directory: ./Source
+        
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
       
     steps:
     - uses: actions/checkout@v3
@@ -53,7 +56,10 @@ jobs:
         password: ${{ secrets.REGISTRY_PASSWORD }}
         
     - name: 'Build and push'
+      id: tag
       run: |
        cd ./${{ inputs.APPLICATION-FOLDER }}
-       docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       run: echo "::set-output name=tag::$INPUTS_CONTAINER-REGISTRY/$INPUTS_CONTAINER-NAME:$GITHUB_SHA"
+       docker build -f Dockerfile.k8s . -t ${{ outputs.tag }}
+       # docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
        docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
