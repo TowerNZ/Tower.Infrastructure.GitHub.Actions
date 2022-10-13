@@ -30,7 +30,7 @@ jobs:
         working-directory: ./Source
         
     outputs:
-      tag: ${{ steps.tag.outputs.tag }}
+      output1: ${{ steps.tag.outputs.tag }}
       
     steps:
     - uses: actions/checkout@v3
