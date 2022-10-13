@@ -59,12 +59,12 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
         
-      # Want to do:  docker build -f Dockerfile.k8s . -t ${{ outputs.tag }}
+      # Want to do:  docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
       
     - name: 'Build and push'
       id: tag
       run: |
        cd ./${{ inputs.APPLICATION-FOLDER }}
        echo "::set-output name=tag::$INPUTS_CONTAINER-REGISTRY/$INPUTS_CONTAINER-NAME:$GITHUB_SHA"
-       docker build -f Dockerfile.k8s . -t ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
+       docker build -f Dockerfile.k8s . -t ${{ outputs.tag }}
        docker push ${{ inputs.CONTAINER-REGISTRY }}/${{ inputs.CONTAINER-NAME }}:${{ github.sha }}
