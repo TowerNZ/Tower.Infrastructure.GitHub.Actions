@@ -15,6 +15,10 @@ on:
       APPLICATION-FOLDER:
         required: true
         type: string
+    outputs:
+      tag:
+        description: "Full build tag for built container image"
+        value: ${{ jobs.build.outputs.tag }}
     secrets:
       REGISTRY_USERNAME:
         required: true
@@ -30,7 +34,7 @@ jobs:
         working-directory: ./Source
         
     outputs:
-      output1: ${{ steps.tag.outputs.tag }}
+      tag: ${{ steps.tag.outputs.tag }}
       
     steps:
     - uses: actions/checkout@v3
